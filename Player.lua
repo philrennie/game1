@@ -5,7 +5,7 @@
 -- Time: 13:22
 -- To change this template use File | Settings | File Templates.
 --
-local class = require 'middleclass'
+local class = require 'libs.middleclass'
 local Character = require 'character'
 
 local Player = class('Player', Character)

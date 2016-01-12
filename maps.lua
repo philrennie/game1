@@ -5,7 +5,7 @@
 -- Time: 14:36
 -- To change this template use File | Settings | File Templates.
 --
-local class = require ' middleclass'
+local class = require 'libs.middleclass'
 
 local Maps = class('Maps')
 
