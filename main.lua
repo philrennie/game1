@@ -5,14 +5,15 @@
 -- Time: 14:31
 -- To change this template use File | Settings | File Templates.
 --
-local pretty = require 'pl.pretty'
-local sti = require "sti"
-local HC = require "hardoncollider"
+
+
+local HC = require "libs.hardoncollider"
+
+local Game = require 'Game'
+local game = Game:new()
 
 local map, world, windowWidth, windowHeight
 
-local Player = require "Player"
-local player = Player:new(200, 300, 'sdfsdfsf')
 
 local playerSpawn, spawnLayer
 local playerSpeed = 400
