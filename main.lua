@@ -7,14 +7,14 @@
 --
 
 GameState = require 'libs.hump.gamestate'
-menu = require 'States.menu'
-notmenu = require 'States.notmenu'
-paused = require 'States.paused'
+--menu = require 'States.menu'
+--notmenu = require 'States.notmenu'
+--paused = require 'States.paused'
 
-local HC = require "libs.hardoncollider"
+HC = require "libs.hardoncollider"
 
 local Game = require 'Game'
-local game = Game:new()
+game = Game:new()
 
 local map, world, windowWidth, windowHeight
 
@@ -38,23 +38,18 @@ local worldHeight = 0 -- maximum map height
 local worldCollisionRects = {} -- collision items to restrict world movement
 
 function love.load()
---    print('loading states')
---    local states = love.filesystem.getDirectoryItems('States')
---    for i = 1, #states do
---        local stateFile = states[i]
---        local name, ext = getNameAndExt(stateFile)
---        if ext == 'lua' then
---            print('Require: ' .. name )
---            _G[name] = require tostring(name)
---        end
---    end
---
---    for n,v in pairs(_G) do
---        print (n,v)
---    end
+    -- load the various game state files
+    local states = love.filesystem.getDirectoryItems('States')
+    for i = 1, #states do
+        local stateFile = states[i]
+        local name, ext = getNameAndExt(stateFile)
+        if ext == 'lua' then
+            print('Require: ' .. name )
+            _G[string.sub(name, 1, -5)] = dofile('States/' .. tostring(name))
+        end
+    end
 
-
-    GameState.switch(menu)
+    GameState.switch(level1)
 end
 
 function love.update(dt)
@@ -79,7 +74,7 @@ end
 
 -- Move the player window if needed
 function positionPlayerWindow()
-    local player = map.layers["Sprite Layer"].sprites.player
+    local player = game.map.layers["Sprite Layer"].sprites.player
     if player.x < playerWindow.x then
         -- move window position left
         playerWindow.x = clamp(playerMargin.x, player.x, worldWidth - playerMargin.x)

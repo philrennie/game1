@@ -5,23 +5,39 @@
 -- Time: 14:51
 -- To change this template use File | Settings | File Templates.
 --
-local class = require 'libs.middleclass'
-local Game = class('Game')
+local pretty = require 'pl.pretty'
 
 local Player = require 'Player' -- player class
 local sti = require "libs.sti" -- Standard Tiled Loader
+
+local class = require 'libs.middleclass'
+local Game = class('Game')
 
 function Game:initialize()
     self.maps= {}
     self:findMaps()
     self.player = Player:new(0, 0, '')
-    for i = 1, #self.maps do
-        print(self.maps[i])
-    end
+
+    -- Grab window size
+    self.windowWidth = love.graphics.getWidth()
+    self.windowHeight = love.graphics.getHeight()
+
+    self.playerMargin = {}
+
+    -- margin we try to keep the player in from edge of screen
+    self.playerMargin.x = love.graphics.getWidth()/4
+    self.playerMargin.y = love.graphics.getHeight()/4
+
+    self.playerWindow = {
+        x = 0,
+        y = 0,
+        width = 0,
+        height = 0
+    }
+    self.worldCollisionRects = {}
 end
 
 function Game:findMaps()
-    print('finding maps')
     local maps = self.maps
     local files = love.filesystem.getDirectoryItems('assets/maps')
     for i = 1, #files do
@@ -31,8 +47,91 @@ function Game:findMaps()
     end
 end
 
-function Game:loadMap()
+function Game:loadMap(mapPath)
 
+    -- Load a map exported to Lua from Tiled
+    self.map = sti.new(mapPath)
+
+    -- Grab the size of the map in pixels
+    self.worldWidth = self.map.width * self.map.tilewidth
+    self.worldHeight = self.map.height * self.map.tilewidth
+
+    -- Create a Custom Layer
+    self.map:addCustomLayer("Sprite Layer", 3)
+
+    -- find the player spawn
+    local playerSpawn = { x = nil, y = nil }
+    local spawnLayer = self.map.layers["objects"]
+    for i, object in ipairs(spawnLayer.objects) do
+        if object.name == "playerspawn" then
+            playerSpawn.x = object.x
+            playerSpawn.y = object.y
+        end
+    end
+    self.map.layers["objects"].visible = false
+
+    -- Add data to Custom Layer - place the player center in the world
+    local spriteLayer = self.map.layers["Sprite Layer"]
+    local playerimage = love.graphics.newImage("assets/sprites/player.png")
+    local cRect = HC.rectangle(playerSpawn.x, playerSpawn.y, 32, 32)
+    spriteLayer.sprites = {
+        player = {
+            image = playerimage,
+            x = playerSpawn.x,
+            y = playerSpawn.y,
+            r = 0,
+            colliderRect = cRect
+        }
+    }
+
+    -- Update callback for Custom Layer
+    function spriteLayer:update(dt)
+        for _, sprite in pairs(self.sprites) do
+            sprite.r = sprite.r + math.rad(90 * dt)
+        end
+    end
+
+    -- Draw callback for Custom Layer
+    function spriteLayer:draw()
+        for _, sprite in pairs(self.sprites) do
+            local x = math.floor(sprite.x)
+            local y = math.floor(sprite.y)
+            local r = sprite.r
+            r = 0
+            love.graphics.draw(sprite.image, x, y, r)
+        end
+    end
+
+    -- setup the size and position of the player window
+    self.playerWindow.width = 2 * self.playerMargin.x
+    self.playerWindow.height = 2 * self.playerMargin.y
+
+    -- we keep the player window within the margins of the map
+    self.playerWindow.x = clamp(self.playerMargin.x, spriteLayer.sprites.player.x - self.playerMargin.x,
+        self.worldWidth - self.playerMargin.x)
+    self.playerWindow.y = clamp(self.playerMargin.y, spriteLayer.sprites.player.y - self.playerMargin.y,
+        self.worldHeight - self.playerMargin.y)
+
+    self:addWorldCollisions()
+end
+
+function Game:addWorldCollisions()
+    local collisionLayer = self.map.layers["collisions"]
+    collisionLayer.visible = false
+
+    for i, object in ipairs(collisionLayer.objects) do
+        if object.shape == "rectangle" then
+            self.worldCollisionRects[#self.worldCollisionRects+1] = HC.rectangle(object.x, object.y, object.width, object.height)
+        elseif object.shape == "polygon" then
+            local thisPolygon = object.polygon
+            local corners = {}
+            for i = 1, #thisPolygon, 1 do
+                corners[#corners+1] = thisPolygon[i].x
+                corners[#corners+1] = thisPolygon[i].y
+            end
+            self.worldCollisionRects[#self.worldCollisionRects+1] = HC.polygon(unpack(corners))
+        end
+    end
 end
 
 function Game:GetNameAndExt(file)
