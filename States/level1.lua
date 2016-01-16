@@ -10,7 +10,7 @@ local level1 = {}
 
 function level1:enter()
     print('Enter level 1')
-    game:loadMap("assets/maps/map01.lua")
+--    game:loadMap("assets/maps/map01.lua")
     print('Done enering level 1')
 end
 
@@ -73,6 +73,10 @@ function checkMovement(dt)
 end
 
 function level1:keyreleased(key)
+    if key == 'escape' then
+        GameState.switch(menu)
+    end
+
     if key == 'p' then
         GameState.push(paused)
     end
