@@ -45,19 +45,15 @@ function checkMovement(dt)
     local playerSpeed = game.playerSpeed
 
     if love.keyboard.isDown("left", 'a') then
-        print(string.format('left x: %02d y: %02d playerspeed: %02d', player.x, player.y, playerSpeed ))
         player.x = clamp(0, player.x - playerSpeed * dt, game.worldWidth)
     end
     if love.keyboard.isDown("right", 'd') then
-        print('right')
         player.x = clamp(0, player.x + playerSpeed * dt, game.worldWidth)
     end
     if love.keyboard.isDown("up", 'w') then
-        print('up')
         player.y = clamp(0, player.y - playerSpeed * dt, game.worldHeight)
     end
     if love.keyboard.isDown("down", 's') then
-        print('down')
         player.y = clamp(0, player.y + playerSpeed * dt, game.worldHeight)
     end
 
