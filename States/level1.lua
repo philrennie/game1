@@ -41,27 +41,34 @@ end
 function checkMovement(dt)
     local previousXY = {}
     previousXY = game.player.x, game.player.y
+    local player = game.player.sprite
+    local playerSpeed = game.playerSpeed
 
     if love.keyboard.isDown("left", 'a') then
-        game.player.x = clamp(0, game.player.x - game.playerSpeed * dt, game.worldWidth)
+        print(string.format('left x: %02d y: %02d playerspeed: %02d', player.x, player.y, playerSpeed ))
+        player.x = clamp(0, player.x - playerSpeed * dt, game.worldWidth)
     end
     if love.keyboard.isDown("right", 'd') then
-        game.player.x = clamp(0, game.player.x + game.playerSpeed * dt, game.worldWidth)
+        print('right')
+        player.x = clamp(0, player.x + playerSpeed * dt, game.worldWidth)
     end
     if love.keyboard.isDown("up", 'w') then
-        game.player.y = clamp(0, game.player.y - game.playerSpeed * dt, game.worldHeight)
+        print('up')
+        player.y = clamp(0, player.y - playerSpeed * dt, game.worldHeight)
     end
     if love.keyboard.isDown("down", 's') then
-        game.player.y = clamp(0, game.player.y + game.playerSpeed * dt, game.worldHeight)
+        print('down')
+        player.y = clamp(0, player.y + playerSpeed * dt, game.worldHeight)
     end
-    game.player.colliderRect:moveTo(game.player.x + 16, game.player.y + 16)
+
+    player.colliderRect:moveTo(player.x + 16, player.y + 16)
 
     -- check if player is colliding with world and prevent it
-    local collisions = HC.collisions(game.player.colliderRect)
+    local collisions = HC.collisions(player.colliderRect)
     for other, separating_vector in pairs(collisions) do
-        game.player.x = game.player.x + separating_vector.x
-        game.player.y = game.player.y + separating_vector.y
-        game.player.colliderRect:move(-separating_vector.x, -separating_vector.y)
+        player.x = player.x + separating_vector.x
+        player.y = player.y + separating_vector.y
+        player.colliderRect:move(-separating_vector.x, -separating_vector.y)
     end
 end
 

@@ -5,7 +5,6 @@
 -- Time: 14:51
 -- To change this template use File | Settings | File Templates.
 --
---local pretty = require 'pl.pretty'
 
 local Player = require 'Player' -- player class
 local sti = require "libs.sti" -- Standard Tiled Loader
@@ -14,8 +13,9 @@ local class = require 'libs.middleclass'
 local Game = class('Game')
 
 function Game:initialize()
+
     self.maps= {}
---    self:findMaps()
+
     self.player = Player:new(0, 0)
 
     -- Grab window size
@@ -101,7 +101,7 @@ function Game:loadMap(mapPath)
 
     -- Add data to Custom Layer - place the player center in the world
     local spriteLayer = self.map.layers["Sprite Layer"]
-    local playerimage = love.graphics.newImage("assets/sprites/player.png")
+    local playerimage = love.graphics.newImage(self.player.imgPath)
     local cRect = HC.rectangle(playerSpawn.x, playerSpawn.y, 32, 32)
     spriteLayer.sprites = {
         player = {
@@ -115,9 +115,9 @@ function Game:loadMap(mapPath)
 
     -- Update callback for Custom Layer
     function spriteLayer:update(dt)
-        for _, sprite in pairs(self.sprites) do
-            sprite.r = sprite.r + math.rad(90 * dt)
-        end
+--        for _, sprite in pairs(self.sprites) do
+--            sprite.r = sprite.r + math.rad(90 * dt)
+--        end
     end
 
     -- Draw callback for Custom Layer

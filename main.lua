@@ -7,7 +7,7 @@
 --
 pretty = require 'pl.pretty'
 GameState = require 'libs.hump.gamestate'
-
+lovebird = require 'libs.lovebird'
 
 --menu = require 'States.menu'
 --notmenu = require 'States.notmenu'
@@ -58,6 +58,7 @@ function love.load()
 end
 
 function love.update(dt)
+    lovebird.update()
     GameState.update(dt)
 end
 --
