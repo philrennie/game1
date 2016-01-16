@@ -6,12 +6,22 @@
 -- To change this template use File | Settings | File Templates.
 --
 local class = require 'libs.middleclass'
-local Character = require 'character'
+local Character = require 'Character'
 
 local Player = class('Player', Character)
 
-function Player:init(x, y, imgPath)
-    Character:initialize(self, x, y, imgPath)
+PLayer.static.imgPath = 'assets/sprites/player.png'
+
+function Player:init(x, y)
+    self.inventory = {
+        gold = 10,
+        weapons = {
+            sword,
+            bow
+        }
+    }
+    Character:initialize(self, x, y, Player.imgPath)
+    self.sprite = nil
 end
 
 return Player

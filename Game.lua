@@ -5,7 +5,7 @@
 -- Time: 14:51
 -- To change this template use File | Settings | File Templates.
 --
-local pretty = require 'pl.pretty'
+--local pretty = require 'pl.pretty'
 
 local Player = require 'Player' -- player class
 local sti = require "libs.sti" -- Standard Tiled Loader
@@ -15,8 +15,8 @@ local Game = class('Game')
 
 function Game:initialize()
     self.maps= {}
-    self:findMaps()
-    self.player = Player:new(0, 0, '')
+--    self:findMaps()
+    self.player = Player:new(0, 0)
 
     -- Grab window size
     self.windowWidth = love.graphics.getWidth()
@@ -27,6 +27,8 @@ function Game:initialize()
     -- margin we try to keep the player in from edge of screen
     self.playerMargin.x = love.graphics.getWidth()/4
     self.playerMargin.y = love.graphics.getHeight()/4
+
+    self.playerSpeed = 300
 
     self.playerWindow = {
         x = 0,
@@ -45,6 +47,33 @@ function Game:findMaps()
             maps[#maps+1] = files[i]
         end
     end
+end
+
+-- Move the player window if needed
+function Game:positionPlayerWindow()
+    local player = self.map.layers["Sprite Layer"].sprites.player
+
+    if player.x < self.playerWindow.x then
+        -- move window position left
+        self.playerWindow.x = clamp(self.playerMargin.x, player.x, self.worldWidth - self.playerMargin.x)
+    end
+    if player.x > self.playerWindow.x + self.playerWindow.width then
+        -- move window position right
+        self.playerWindow.x = clamp(self.playerMargin.x, player.x - self.playerWindow.width, self.worldWidth - self.playerMargin.x)
+    end
+    if player.y < self.playerWindow.y then
+        -- move window position up
+        self.playerWindow.y = clamp(self.playerMargin.y, player.y, self.worldHeight - self.playerMargin.y)
+    end
+    if player.y > self.playerWindow.y + self.playerWindow.height then
+        -- move window position down
+        self.playerWindow.y = clamp(self.playerMargin.y, player.y - self.playerWindow.height, self.worldHeight - self.playerMargin.y)
+    end
+end
+
+function Game:updateMap(dt)
+    map = self.map
+    map:update(dt)
 end
 
 function Game:loadMap(mapPath)
@@ -101,6 +130,8 @@ function Game:loadMap(mapPath)
             love.graphics.draw(sprite.image, x, y, r)
         end
     end
+
+    self.player.sprite = spriteLayer.sprites.player
 
     -- setup the size and position of the player window
     self.playerWindow.width = 2 * self.playerMargin.x

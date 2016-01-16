@@ -5,11 +5,14 @@
 -- Time: 14:31
 -- To change this template use File | Settings | File Templates.
 --
-
+pretty = require 'pl.pretty'
 GameState = require 'libs.hump.gamestate'
+
+
 --menu = require 'States.menu'
 --notmenu = require 'States.notmenu'
 --paused = require 'States.paused'
+--level1 = require 'States.level1'
 
 HC = require "libs.hardoncollider"
 
@@ -38,7 +41,7 @@ local worldHeight = 0 -- maximum map height
 local worldCollisionRects = {} -- collision items to restrict world movement
 
 function love.load()
-    -- load the various game state files
+    -- load the game states from the States folder
     local states = love.filesystem.getDirectoryItems('States')
     for i = 1, #states do
         local stateFile = states[i]
@@ -49,17 +52,19 @@ function love.load()
         end
     end
 
-    GameState.switch(level1)
+
+    GameState.registerEvents()
+    GameState.switch(menu)
 end
 
 function love.update(dt)
     GameState.update(dt)
 end
-
-
-function love.draw()
-    GameState.draw()
-end
+--
+--
+--function love.draw()
+--    GameState.draw()
+--end
 
 
 function love.keypressed(key)
@@ -68,29 +73,6 @@ end
 
 function love.keyreleased(key)
     GameState.keyreleased(key)
-end
-
-
-
--- Move the player window if needed
-function positionPlayerWindow()
-    local player = game.map.layers["Sprite Layer"].sprites.player
-    if player.x < playerWindow.x then
-        -- move window position left
-        playerWindow.x = clamp(playerMargin.x, player.x, worldWidth - playerMargin.x)
-    end
-    if player.x > playerWindow.x + playerWindow.width then
-        -- move window position right
-        playerWindow.x = clamp(playerMargin.x, player.x - playerWindow.width, worldWidth - playerMargin.x)
-    end
-    if player.y < playerWindow.y then
-        -- move window position up
-        playerWindow.y = clamp(playerMargin.y, player.y, worldHeight - playerMargin.y)
-    end
-    if player.y > playerWindow.y + playerWindow.height then
-        -- move window position down
-        playerWindow.y = clamp(playerMargin.y, player.y - playerWindow.height, worldHeight - playerMargin.y)
-    end
 end
 
 function clamp(min, val, max)
